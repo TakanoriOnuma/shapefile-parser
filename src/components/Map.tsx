@@ -25,6 +25,7 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
       }
 
       map = L.map(element);
+      map.setView([35.681236, 139.767125], 15);
       const layer = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         {

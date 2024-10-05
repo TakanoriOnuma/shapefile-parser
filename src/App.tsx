@@ -1,28 +1,54 @@
 import { FC, useState } from "react";
 import { Map } from "./components/Map";
-
-import jsonPointRaw from "../data/output/P17-12_13_FireStation.geojson?raw";
-import jsonPolygonRaw from "../data/output/P17-12_13_FireStationJurisdiction.geojson?raw";
-
-const jsonPoint = JSON.parse(jsonPointRaw);
-console.log(jsonPoint);
-const jsonPolygon = JSON.parse(jsonPolygonRaw);
-console.log(jsonPolygon);
+import { GeoFileLoader, GeoFileInfo } from "./components/GeoFileLoader";
+import { GeoFileInfoCheck } from "./components/GeoFileInfoCheck";
 
 const App: FC = () => {
-  const [flag, setFlag] = useState(true);
+  const [geoFileInfoList, setGeoFileInfoList] = useState<GeoFileInfo[]>([]);
+  const [isVisibleFileNameMap, setIsVisibleFileNameMap] = useState<
+    Record<string, boolean>
+  >({});
+
+  const filteredGeoJsonList = geoFileInfoList
+    .filter((geoFileInfo) => isVisibleFileNameMap[geoFileInfo.rawFile.name])
+    .map((geoFileInfo) => geoFileInfo.geojson);
 
   return (
     <div>
       <div>Hello, World!</div>
-      <button
-        onClick={() => {
-          setFlag(!flag);
+      <GeoFileLoader
+        onFileLoaded={(geoFileInfo) => {
+          // 同じファイル名がある場合は追加しない
+          const sameFile = geoFileInfoList.find(
+            (item) => item.rawFile.name === geoFileInfo.rawFile.name,
+          );
+          if (sameFile != null) {
+            return;
+          }
+          setGeoFileInfoList([...geoFileInfoList, geoFileInfo]);
+          setIsVisibleFileNameMap({
+            ...isVisibleFileNameMap,
+            [geoFileInfo.rawFile.name]: true,
+          });
         }}
-      >
-        toggle
-      </button>
-      <Map geoJsonList={flag ? [jsonPoint] : [jsonPoint, jsonPolygon]} />
+      />
+      <ul>
+        {geoFileInfoList.map((geoFileInfo) => (
+          <li key={geoFileInfo.rawFile.name}>
+            <GeoFileInfoCheck
+              geoFileInfo={geoFileInfo}
+              isChecked={isVisibleFileNameMap[geoFileInfo.rawFile.name]}
+              onChangeChecked={(isChecked) => {
+                setIsVisibleFileNameMap({
+                  ...isVisibleFileNameMap,
+                  [geoFileInfo.rawFile.name]: isChecked,
+                });
+              }}
+            />
+          </li>
+        ))}
+      </ul>
+      <Map geoJsonList={filteredGeoJsonList} />
     </div>
   );
 };
