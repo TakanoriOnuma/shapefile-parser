@@ -1,5 +1,6 @@
 import { FC, useMemo, useState, useEffect } from "react";
 import L from "leaflet";
+import "leaflet.markercluster";
 
 const isActive = (map: L.Map) => {
   // 既にマップが削除されている場合はpanesが空になっているので、それで判断する
@@ -55,11 +56,14 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
       },
     });
 
-    map.addLayer(layer);
-    map.fitBounds(layer.getBounds());
+    const markerClusterLayer = L.markerClusterGroup();
+    markerClusterLayer.addLayer(layer);
+
+    map.addLayer(markerClusterLayer);
+    map.fitBounds(markerClusterLayer.getBounds());
 
     return () => {
-      map.removeLayer(layer);
+      map.removeLayer(markerClusterLayer);
     };
   }, [map, geoJsonList]);
 
