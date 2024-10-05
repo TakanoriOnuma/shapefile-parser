@@ -43,33 +43,23 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
       return;
     }
 
-    const layers = geoJsonList.map((geoJson) => {
-      const layer = L.geoJSON(geoJson, {
-        onEachFeature: (feature, layer) => {
-          if (feature.properties) {
-            layer.bindPopup(
-              Object.entries(feature.properties)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join("<br>"),
-            );
-          }
-        },
-      });
-      return layer;
+    const layer = L.geoJSON(geoJsonList, {
+      onEachFeature: (feature, layer) => {
+        if (feature.properties) {
+          layer.bindPopup(
+            Object.entries(feature.properties)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join("<br>"),
+          );
+        }
+      },
     });
 
-    layers.forEach((layer) => {
-      map.addLayer(layer);
-    });
-    const extendedBounds = layers.reduce((bounds, layer) => {
-      return bounds.extend(layer.getBounds());
-    }, layers[0].getBounds());
-    map.fitBounds(extendedBounds);
+    map.addLayer(layer);
+    map.fitBounds(layer.getBounds());
 
     return () => {
-      layers.forEach((layer) => {
-        map.removeLayer(layer);
-      });
+      map.removeLayer(layer);
     };
   }, [map, geoJsonList]);
 
