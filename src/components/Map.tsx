@@ -47,11 +47,10 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
 
     const layer = L.geoJSON(geoJsonList, {
       onEachFeature: (feature, layer) => {
-        if (feature.properties) {
+        const entries = Object.entries(feature.properties);
+        if (entries.length > 0) {
           layer.bindPopup(
-            Object.entries(feature.properties)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join("<br>"),
+            entries.map(([key, value]) => `${key}: ${value}`).join("<br>"),
           );
         }
       },

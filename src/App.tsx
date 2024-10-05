@@ -18,14 +18,14 @@ const App: FC = () => {
       <div>Hello, World!</div>
       <GeoFileLoader
         onFileLoaded={(geoFileInfo) => {
-          // 同じファイル名がある場合は追加しない
-          const sameFile = geoFileInfoList.find(
-            (item) => item.rawFile.name === geoFileInfo.rawFile.name,
-          );
-          if (sameFile != null) {
-            return;
-          }
-          setGeoFileInfoList([...geoFileInfoList, geoFileInfo]);
+          console.log(geoFileInfo);
+          setGeoFileInfoList([
+            // 同じファイル名がある場合は上書きする
+            ...geoFileInfoList.filter(
+              (item) => item.rawFile.name !== geoFileInfo.rawFile.name,
+            ),
+            geoFileInfo,
+          ]);
           setIsVisibleFileNameMap({
             ...isVisibleFileNameMap,
             [geoFileInfo.rawFile.name]: true,
