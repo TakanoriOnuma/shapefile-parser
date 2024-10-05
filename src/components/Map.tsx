@@ -8,10 +8,10 @@ const isActive = (map: L.Map) => {
 
 export type MapProps = {
   /** Geo JSONデータ */
-  geoJson: GeoJSON.GeoJSON;
+  geoJsonList: GeoJSON.GeoJSON[];
 };
 
-export const Map: FC<MapProps> = ({ geoJson }) => {
+export const Map: FC<MapProps> = ({ geoJsonList }) => {
   const [map, setMap] = useState<L.Map | null>(null);
 
   const ref = useMemo(() => {
@@ -39,28 +39,39 @@ export const Map: FC<MapProps> = ({ geoJson }) => {
   }, []);
 
   useEffect(() => {
-    if (map == null || !isActive(map)) {
+    if (map == null || !isActive(map) || geoJsonList.length <= 0) {
       return;
     }
 
-    const layer = L.geoJSON(geoJson, {
-      onEachFeature: (feature, layer) => {
-        if (feature.properties) {
-          layer.bindPopup(
-            Object.entries(feature.properties)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join("<br>"),
-          );
-        }
-      },
+    const layers = geoJsonList.map((geoJson) => {
+      const layer = L.geoJSON(geoJson, {
+        onEachFeature: (feature, layer) => {
+          if (feature.properties) {
+            layer.bindPopup(
+              Object.entries(feature.properties)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("<br>"),
+            );
+          }
+        },
+      });
+      return layer;
     });
-    map.addLayer(layer);
-    map.fitBounds(layer.getBounds());
+
+    layers.forEach((layer) => {
+      map.addLayer(layer);
+    });
+    const extendedBounds = layers.reduce((bounds, layer) => {
+      return bounds.extend(layer.getBounds());
+    }, layers[0].getBounds());
+    map.fitBounds(extendedBounds);
 
     return () => {
-      map.removeLayer(layer);
+      layers.forEach((layer) => {
+        map.removeLayer(layer);
+      });
     };
-  }, [map, geoJson]);
+  }, [map, geoJsonList]);
 
   return (
     <div

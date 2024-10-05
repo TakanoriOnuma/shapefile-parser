@@ -22,7 +22,7 @@ const App: FC = () => {
       >
         toggle
       </button>
-      <Map geoJson={flag ? jsonPoint : jsonPolygon} />
+      <Map geoJsonList={flag ? [jsonPoint] : [jsonPoint, jsonPolygon]} />
     </div>
   );
 };
