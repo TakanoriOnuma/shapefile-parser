@@ -1,6 +1,10 @@
 import { FC } from "react";
 import { GeoFileInfo } from "./GeoFileLoader";
 
+const getFileKey = (geoFileInfo: GeoFileInfo) => {
+  return geoFileInfo.rawFiles.map((file) => file.name).join(",");
+};
+
 export type GeoFileInfoCheckProps = {
   /** GeoJSONファイル情報 */
   geoFileInfo: GeoFileInfo;
@@ -28,7 +32,7 @@ export const GeoFileInfoCheck: FC<GeoFileInfoCheckProps> = ({
             onChangeChecked(event.target.checked);
           }}
         />
-        {geoFileInfo.rawFile.name}
+        {getFileKey(geoFileInfo)}
       </label>
     </div>
   );
