@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import * as shapefile from "shapefile";
 import { partition } from "lodash-es";
+import toast from "react-hot-toast";
 
 /** GeoJSONファイル情報 */
 export type GeoFileInfo = {
@@ -42,7 +43,7 @@ type LoadedFileData = LoadedJsonFileData | LoadedShapeFileData;
  * @param file - ファイル
  */
 const loadFile = (file: File) => {
-  return new Promise<LoadedFileData>((resolve) => {
+  return new Promise<LoadedFileData>((resolve, reject) => {
     const fileType = (() => {
       if (ACCEPT_JSON_FILE_EXTENSIONS.some((ext) => file.name.endsWith(ext))) {
         return "json";
@@ -50,7 +51,7 @@ const loadFile = (file: File) => {
       if (ACCEPT_SHAPE_FILE_EXTENSIONS.some((ext) => file.name.endsWith(ext))) {
         return file.name.endsWith(".shp") ? "shape" : "dbf";
       }
-      throw new Error("Invalid file type");
+      throw new Error("jsonまたはshapeファイルを選択してください");
     })();
 
     const reader = new FileReader();
@@ -60,11 +61,17 @@ const loadFile = (file: File) => {
         return;
       }
       if (fileType === "json") {
-        resolve({
-          type: "json",
-          data: JSON.parse(result as string),
-          rawFile: file,
-        });
+        // Errorのthrowが親でcatchできなかったのでrejectで対応
+        try {
+          resolve({
+            type: "json",
+            data: JSON.parse(result as string),
+            rawFile: file,
+          });
+        } catch (err) {
+          console.error(err);
+          reject(new Error("JSONファイルの読み込みに失敗しました"));
+        }
         return;
       } else {
         resolve({ type: fileType, data: result as ArrayBuffer, rawFile: file });
@@ -126,6 +133,10 @@ export const GeoFileLoader: FC<GeoFileLoaderProps> = ({ onFileLoaded }) => {
       <input
         value=""
         type="file"
+        accept={[
+          ...ACCEPT_JSON_FILE_EXTENSIONS,
+          ...ACCEPT_SHAPE_FILE_EXTENSIONS,
+        ].join(",")}
         multiple
         onChange={async (event) => {
           const { files } = event.target;
@@ -135,7 +146,13 @@ export const GeoFileLoader: FC<GeoFileLoaderProps> = ({ onFileLoaded }) => {
 
           const loadedFileDataList = await Promise.all(
             Array.from(files).map((file) => loadFile(file)),
-          );
+          ).catch((err) => {
+            toast.error(String(err));
+            return null;
+          });
+          if (loadedFileDataList == null) {
+            return;
+          }
 
           const [jsonFileDataList, shapeFileDataList] = partition(
             loadedFileDataList,

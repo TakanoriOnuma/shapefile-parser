@@ -62,7 +62,10 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
     markerClusterLayer.addLayer(layer);
 
     map.addLayer(markerClusterLayer);
-    map.fitBounds(markerClusterLayer.getBounds());
+    const bounds = markerClusterLayer.getBounds();
+    if (bounds.isValid()) {
+      map.fitBounds(markerClusterLayer.getBounds());
+    }
 
     return () => {
       map.removeLayer(markerClusterLayer);
