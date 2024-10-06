@@ -2,6 +2,8 @@ import { FC, useMemo, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 import { saveGeoJsonFile } from "../utils/saveGeoJsonFile";
 
@@ -79,8 +81,16 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
     const layer = L.geoJSON(geoJsonList, {
       pointToLayer: (_, latlng) => {
         return L.marker(latlng, {
+          // @see https://github.com/Leaflet/Leaflet/blob/v1.9.4/src/layer/marker/Icon.Default.js#L22-L31
           icon: L.icon({
             iconUrl: markerIcon,
+            iconRetinaUrl: markerIcon2x,
+            shadowUrl: markerShadow,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            tooltipAnchor: [16, -28],
+            shadowSize: [41, 41],
           }),
         });
       },
