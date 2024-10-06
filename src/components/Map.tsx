@@ -21,15 +21,31 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
 
   const ref = useMemo(() => {
     let map: L.Map | null = null;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // CtrlキーまたはCommandキーが押されている場合はスクロールズームを有効にする
+      if (event.ctrlKey || event.metaKey) {
+        map?.scrollWheelZoom.enable();
+      }
+    };
+    const handleKeyUp = () => {
+      map?.scrollWheelZoom.disable();
+    };
     return (element: HTMLElement | null) => {
       if (element == null) {
         map?.remove();
         setMap(null);
         setMarkerClusterLayer(null);
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("keyup", handleKeyUp);
         return;
       }
 
-      map = L.map(element);
+      map = L.map(element, {
+        scrollWheelZoom: false,
+      });
+      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("keyup", handleKeyUp);
+
       map.setView([35.681236, 139.767125], 15);
       const layer = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
