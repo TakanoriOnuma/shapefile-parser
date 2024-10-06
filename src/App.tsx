@@ -19,7 +19,9 @@ const App: FC = () => {
 
   return (
     <div>
-      <div>Hello, World!</div>
+      <h1 style={{ margin: "0 0 10px" }}>
+        Shapeファイルのプレビュー＆ダウンロードアプリ
+      </h1>
       <GeoFileLoader
         onFileLoaded={(newGeoFileInfoList) => {
           setGeoFileInfoList([
