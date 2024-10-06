@@ -1,6 +1,7 @@
 import { FC, useMemo, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
 
 import { saveGeoJsonFile } from "../utils/saveGeoJsonFile";
 
@@ -76,6 +77,13 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
     }
 
     const layer = L.geoJSON(geoJsonList, {
+      pointToLayer: (_, latlng) => {
+        return L.marker(latlng, {
+          icon: L.icon({
+            iconUrl: markerIcon,
+          }),
+        });
+      },
       onEachFeature: (feature, layer) => {
         const entries = Object.entries(feature.properties);
         if (entries.length > 0) {
