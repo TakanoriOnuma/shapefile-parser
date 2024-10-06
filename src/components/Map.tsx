@@ -81,6 +81,7 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
     const layer = L.geoJSON(geoJsonList, {
       pointToLayer: (_, latlng) => {
         return L.marker(latlng, {
+          // デフォルトアイコンをそのまま使うとビルド時に画像がリンク切れになってしまったのでimportして使用する
           // @see https://github.com/Leaflet/Leaflet/blob/v1.9.4/src/layer/marker/Icon.Default.js#L22-L31
           icon: L.icon({
             iconUrl: markerIcon,
