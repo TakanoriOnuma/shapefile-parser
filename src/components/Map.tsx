@@ -105,14 +105,13 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
     });
     markerClusterLayer.addLayer(layer);
 
-    map.addLayer(markerClusterLayer);
     const bounds = markerClusterLayer.getBounds();
     if (bounds.isValid()) {
       map.fitBounds(bounds);
     }
 
     return () => {
-      markerClusterLayer.removeLayer(markerClusterLayer);
+      markerClusterLayer.removeLayer(layer);
     };
   }, [map, markerClusterLayer, geoJsonList]);
 
