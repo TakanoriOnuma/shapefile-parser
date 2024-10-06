@@ -5,6 +5,22 @@ const getFileKey = (geoFileInfo: GeoFileInfo) => {
   return geoFileInfo.rawFiles.map((file) => file.name).join(",");
 };
 
+/**
+ * バイナリファイルをローカルに保存する
+ * @param fileName - ファイル名
+ * @param blob - blobデータ
+ */
+const saveGeoJsonFile = (fileName: string, json: GeoJSON.GeoJSON) => {
+  const aElement = document.createElement("a");
+  const blob = new Blob([JSON.stringify(json, null, 2)], {
+    type: "application/json",
+  });
+  aElement.href = window.URL.createObjectURL(blob);
+  aElement.setAttribute("download", fileName);
+  aElement.click();
+  window.URL.revokeObjectURL(aElement.href);
+};
+
 export type GeoFileInfoCheckProps = {
   /** GeoJSONファイル情報 */
   geoFileInfo: GeoFileInfo;
@@ -34,6 +50,21 @@ export const GeoFileInfoCheck: FC<GeoFileInfoCheckProps> = ({
         />
         {getFileKey(geoFileInfo)}
       </label>
+      {geoFileInfo.isConverted && (
+        <button
+          style={{
+            marginLeft: 4,
+          }}
+          onClick={() => {
+            saveGeoJsonFile(
+              geoFileInfo.rawFiles[0].name.replace(".shp", ".geojson"),
+              geoFileInfo.geojson,
+            );
+          }}
+        >
+          geojsonをダウンロード
+        </button>
+      )}
     </div>
   );
 };
