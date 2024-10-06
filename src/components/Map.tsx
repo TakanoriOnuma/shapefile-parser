@@ -2,6 +2,8 @@ import { FC, useMemo, useState, useEffect } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
 
+import { saveGeoJsonFile } from "../utils/saveGeoJsonFile";
+
 const isActive = (map: L.Map) => {
   // 既にマップが削除されている場合はpanesが空になっているので、それで判断する
   return Object.keys(map.getPanes()).length > 0;
@@ -68,11 +70,25 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
   }, [map, geoJsonList]);
 
   return (
-    <div
-      ref={ref}
-      style={{
-        aspectRatio: "16 / 9",
-      }}
-    ></div>
+    <div>
+      <div
+        ref={ref}
+        style={{
+          aspectRatio: "16 / 9",
+        }}
+      ></div>
+      <button
+        style={{ marginTop: 5 }}
+        onClick={() => {
+          map?.eachLayer((layer) => {
+            if (layer instanceof L.MarkerClusterGroup) {
+              saveGeoJsonFile("output.geojson", layer.toGeoJSON());
+            }
+          });
+        }}
+      >
+        マップ上に表示しているデータをgeojsonとしてダウンロード
+      </button>
+    </div>
   );
 };

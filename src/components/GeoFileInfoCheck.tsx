@@ -1,24 +1,9 @@
 import { FC } from "react";
 import { GeoFileInfo } from "./GeoFileLoader";
+import { saveGeoJsonFile } from "../utils/saveGeoJsonFile";
 
 const getFileKey = (geoFileInfo: GeoFileInfo) => {
   return geoFileInfo.rawFiles.map((file) => file.name).join(",");
-};
-
-/**
- * バイナリファイルをローカルに保存する
- * @param fileName - ファイル名
- * @param blob - blobデータ
- */
-const saveGeoJsonFile = (fileName: string, json: GeoJSON.GeoJSON) => {
-  const aElement = document.createElement("a");
-  const blob = new Blob([JSON.stringify(json, null, 2)], {
-    type: "application/json",
-  });
-  aElement.href = window.URL.createObjectURL(blob);
-  aElement.setAttribute("download", fileName);
-  aElement.click();
-  window.URL.revokeObjectURL(aElement.href);
 };
 
 export type GeoFileInfoCheckProps = {
