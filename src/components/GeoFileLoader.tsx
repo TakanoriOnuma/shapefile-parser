@@ -131,10 +131,10 @@ export const GeoFileLoader: FC<GeoFileLoaderProps> = ({ onFileLoaded }) => {
   return (
     <div>
       <div>
-        shapeファイル({ACCEPT_SHAPE_FILE_EXTENSIONS.join(", ")}
-        )またはjsonファイル(
+        shapefile({ACCEPT_SHAPE_FILE_EXTENSIONS.join(", ")}
+        )またはgeojson(
         {ACCEPT_JSON_FILE_EXTENSIONS.join(", ")}
-        )を選択してください。複数のファイルを選択することもできます。
+        )をアップロードしてください。複数のファイルを選択することもできます。
       </div>
       <input
         value=""
