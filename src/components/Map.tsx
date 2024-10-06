@@ -16,6 +16,8 @@ export type MapProps = {
 
 export const Map: FC<MapProps> = ({ geoJsonList }) => {
   const [map, setMap] = useState<L.Map | null>(null);
+  const [markerClusterLayer, setMarkerClusterLayer] =
+    useState<L.MarkerClusterGroup | null>(null);
 
   const ref = useMemo(() => {
     let map: L.Map | null = null;
@@ -23,6 +25,7 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
       if (element == null) {
         map?.remove();
         setMap(null);
+        setMarkerClusterLayer(null);
         return;
       }
 
@@ -38,12 +41,21 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
       );
       map.addLayer(layer);
 
+      const markerClusterLayer = L.markerClusterGroup();
+      map.addLayer(markerClusterLayer);
+
       setMap(map);
+      setMarkerClusterLayer(markerClusterLayer);
     };
   }, []);
 
   useEffect(() => {
-    if (map == null || !isActive(map) || geoJsonList.length <= 0) {
+    if (
+      map == null ||
+      !isActive(map) ||
+      markerClusterLayer == null ||
+      geoJsonList.length <= 0
+    ) {
       return;
     }
 
@@ -57,20 +69,18 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
         }
       },
     });
-
-    const markerClusterLayer = L.markerClusterGroup();
     markerClusterLayer.addLayer(layer);
 
     map.addLayer(markerClusterLayer);
     const bounds = markerClusterLayer.getBounds();
     if (bounds.isValid()) {
-      map.fitBounds(markerClusterLayer.getBounds());
+      map.fitBounds(bounds);
     }
 
     return () => {
-      map.removeLayer(markerClusterLayer);
+      markerClusterLayer.removeLayer(markerClusterLayer);
     };
-  }, [map, geoJsonList]);
+  }, [map, markerClusterLayer, geoJsonList]);
 
   return (
     <div>
@@ -80,18 +90,17 @@ export const Map: FC<MapProps> = ({ geoJsonList }) => {
           aspectRatio: "16 / 9",
         }}
       ></div>
-      <button
-        style={{ marginTop: 5 }}
-        onClick={() => {
-          map?.eachLayer((layer) => {
-            if (layer instanceof L.MarkerClusterGroup) {
-              saveGeoJsonFile("output.geojson", layer.toGeoJSON());
-            }
-          });
-        }}
-      >
-        マップ上に表示しているデータをgeojsonとしてダウンロード
-      </button>
+      {markerClusterLayer && (
+        <button
+          style={{ marginTop: 5 }}
+          disabled={geoJsonList.length <= 0}
+          onClick={() => {
+            saveGeoJsonFile("output.geojson", markerClusterLayer.toGeoJSON());
+          }}
+        >
+          マップ上に表示しているデータをgeojsonとしてダウンロード
+        </button>
+      )}
     </div>
   );
 };
